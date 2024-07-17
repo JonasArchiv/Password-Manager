@@ -3,16 +3,20 @@ Password Manager in Python
 
 # How to Use
 ## Create a new password
- `python main.py add <site> --password <your_password>`
+`python main.py add <site> --password <your_password>`
 
 ## Get password
- `python main.py get <site>`
+`python main.py get <site>`
 
 ## Delete  a password
- `python main.py delete <site>`
+`python main.py delete <site>`
 
 ## Change Masterpasswort
-    `python main.py change_master`
+`python main.py change_master`
 
 ## List all sites with passwords
-    `python main.py list`
+`python main.py list`
+
+## Update a password
+`python main.py update <site> --password <new_password>`
+
