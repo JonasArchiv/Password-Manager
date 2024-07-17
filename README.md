@@ -10,3 +10,9 @@ Password Manager in Python
 
 ## Delete  a password
  `python main.py delete <site>`
+
+## Change Masterpasswort
+    `python main.py change_master`
+
+## List all sites with passwords
+    `python main.py list`

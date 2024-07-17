@@ -22,6 +22,11 @@ def load_master_password():
         return None
 
 
+def save_master_password(master_password):
+    with open(MASTER_PASSWORD_FILE, 'wb') as file:
+        file.write(master_password.encode())
+
+
 def get_master_password(prompt="Enter Master Password: "):
     while True:
         master_password = getpass.getpass(prompt=prompt)
@@ -87,15 +92,54 @@ def delete_password(file_path, key, site):
         save_passwords(file_path, passwords)
 
 
+def update_password(file_path, key, site, new_password):
+    passwords = load_passwords(file_path)
+    if site in passwords:
+        passwords[site] = encrypt_password(key, new_password).decode()
+        save_passwords(file_path, passwords)
+        print("Password updated successfully.")
+    else:
+        print("No password found for the specified site.")
+
+
+def change_master_password():
+    current_master_password = get_master_password("Enter Current Master Password: ")
+    if current_master_password == load_master_password():
+        new_master_password = get_master_password("Enter New Master Password: ")
+        save_master_password(new_master_password)
+        print("Master Password changed successfully.")
+    else:
+        print("Incorrect current Master Password.")
+
+
+def list_passwords(file_path, key):
+    passwords = load_passwords(file_path)
+    if passwords:
+        print("List of stored passwords:")
+        for site, encrypted_password in passwords.items():
+            decrypted_password = decrypt_password(key, encrypted_password.encode())
+            print(f"Site: {site} | Password: {decrypted_password}")
+    else:
+        print("No passwords stored yet.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Simple Password Manager")
-    parser.add_argument('action', choices=['add', 'get', 'delete'], help="Action to perform")
+    parser.add_argument('action', choices=['add', 'get', 'delete', 'update', 'change_master', 'list'], help="Action to perform")
     parser.add_argument('site', help="Website or service name")
     parser.add_argument('--password', help="Password to store or update")
     args = parser.parse_args()
 
-    if args.action == 'change':
+    if args.action == 'change_master':
         change_master_password()
+        return
+    elif args.action == 'list':
+        master_password = load_master_password()
+        if master_password:
+            key = generate_key(master_password)
+            list_passwords(PASSWORDS_FILE, key)
+        else:
+            print("Master password not set. Use 'change_master' action to set it.")
         return
 
     master_password = load_master_password()
@@ -120,6 +164,11 @@ def main():
     elif args.action == 'delete':
         delete_password(PASSWORDS_FILE, key, args.site)
         print("Password deleted successfully.")
+    elif args.action == 'update':
+        if args.password:
+            update_password(PASSWORDS_FILE, key, args.site, args.password)
+        else:
+            print("New password is required to update an entry.")
 
 
 if __name__ == "__main__":
